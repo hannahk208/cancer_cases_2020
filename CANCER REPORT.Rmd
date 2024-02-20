@@ -1,0 +1,226 @@
+---
+title: "Global Cancer Incidence 2020: A Comprehensive Exploration"
+author: 'Group 1: Hannah Kamau  & Ivyn Ikogoka'
+date: "2024-01-30"
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+## Introduction
+Welcome to the insightful journey into the realm of global cancer incidence for the year 2020. In this presentation, we embark on a data-driven exploration, unraveling gender-specific trends, unveiling unique cancer types, and identifying the most prevalent cancers. The narrative unfolds through the lens of R code, employing powerful libraries such as dplyr, ggplot2, and patchwork.
+
+
+
+## Loading necessary packages
+To kick things off, let's set the stage by loading the necessary tools for our exploration. The synergy of readxl, dplyr, ggplot2, and the versatile patchwork will empower us to transform raw data into compelling visual narratives.
+ 
+1. `readxl`: This library in R is used for reading data from Excel files, providing functions such as `read_excel()` to import spreadsheet data into R for analysis.
+
+2. `dplyr`: A part of the tidyverse, `dplyr` is a powerful library for data manipulation in R. It offers a set of functions like `filter()`, `select()`, and `mutate()` for efficient and expressive data wrangling.
+
+3. `ggplot2`: Also part of the tidyverse, `ggplot2` is a versatile R library for creating visually appealing and customizable data visualizations. It follows the grammar of graphics, enabling users to build complex plots layer by layer.
+
+4. 'patchwork': This is a part of Patchwork package. It is used for combining and arranging multiple ggplot2 plots into a single, composite plot, enabling easy creation of complex layouts with multiple plots.
+
+
+```{r}
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+
+```
+
+## Gender-Based Analysis: Total New Cases in 2020 
+Our journey begins with a holistic view of global cancer incidence, dissected by gender. The following bar chart showcases the distribution of total new cases in 2020, highlighting gender-specific differences.
+
+```{r}
+
+# Read data
+cancer_incidence_men <- read.csv('Global Cancer Incidence (men).csv')
+cancer_incidence_women <- read.csv('Global Cancer Incidence (women).csv')
+
+# Rename columns and add gender information
+names(cancer_incidence_men) <- c('rank','cancer','new_cases_2020','percent_all_cases')
+cancer_incidence_men <- cancer_incidence_men[-1,]
+cancer_incidence_men$gender <- 'men'
+
+names(cancer_incidence_women) <- c('rank','cancer','new_cases_2020','percent_all_cases')
+cancer_incidence_women <- cancer_incidence_women[-1,]
+cancer_incidence_women$gender <- 'women'
+
+# Combine data frames
+both_sex <- rbind(cancer_incidence_men, cancer_incidence_women)
+
+# Summary stats
+total_cases_gender <- both_sex %>%
+  group_by(gender) %>%
+  summarise(new_cases_2020 = sum(new_cases_2020))
+
+total_cases_cancer <- both_sex %>%
+  group_by(cancer) %>%
+  summarise(new_cases_2020 = sum(new_cases_2020))
+
+# Plotting gender cases
+ggplot(total_cases_gender) +
+  geom_bar(aes(x = gender, y = new_cases_2020, fill = gender), stat = 'identity') +
+  scale_fill_manual(values = c("men" = "blue", "women" = "pink")) +  # Specify colors
+   ylab('Number of cases in 2020')
+ 
+
+```
+ 
+## In-Depth Exploration: Cancer Types
+### Total Cases Across Cancer Types
+Let's dive into the diverse landscape of cancer types globally. The following bar chart captures the essence of the distribution of total new cases across various cancer types in 2020.
+ 
+ 
+```{r}
+## plotting cancer types and the cases in descending order
+ggplot(total_cases_cancer)+
+  geom_bar(aes(reorder(cancer, -new_cases_2020),y =new_cases_2020, fill = cancer ), stat = 'identity')+
+  ylab('number of cases in 2020')+ xlab('Cancer Types')+ theme(legend.position = 'none')+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+cancer_types <-  (total_cases_cancer)
+
+```
+
+## Analyzing Women's Cancer Types in 2020
+Shifting our focus to women's health, the next visualization provides a detailed view of the prevalence of different cancer types among women in 2020. This targeted exploration offers unique insights into the gender-specific nuances of cancer incidence.
+
+```{r}
+
+## Summary stats in Women
+total_cases_cancer_women <- both_sex %>%
+  filter(gender == 'women') %>%
+  group_by(cancer) %>%
+  summarise(new_cases_2020 = sum(new_cases_2020))
+
+## Plotting cancer cases in women in descending order
+ggplot(total_cases_cancer_women) +
+  geom_bar(
+    aes(reorder(cancer, -new_cases_2020), y = new_cases_2020, fill = cancer),
+    stat = 'identity'
+  ) +
+  ylab('Number of Cases in 2020') +
+  xlab('Cancer Types in Women') +
+  theme(legend.position = 'none') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+```
+
+##  Analyzing Men's Cancer Incidence in 2020
+Turning our attention to men's health, we analyze cancer cases specific to the male population. Summary statistics and a well-ordered bar chart visually represent the prevalence of different cancer types among men in 2020.
+The y-axis represents the number of cases, the x-axis shows different cancer types, and bars are color-coded by cancer type. The legend is removed for clarity, and x-axis labels are angled for improved readability.
+
+ 
+ 
+ 
+```{r}
+## Summary stats in Men
+total_cases_cancer_men <- both_sex %>%
+  filter(gender == 'men') %>%
+  group_by(cancer) %>%
+  summarise(new_cases_2020 = sum(new_cases_2020))
+
+## Plotting cancer cases in men in descending order
+ggplot(total_cases_cancer_men) +
+  geom_bar(
+    aes(reorder(cancer, -new_cases_2020), y = new_cases_2020, fill = cancer),
+    stat = 'identity'
+  ) +
+  ylab('Number of Cases in 2020') +
+  xlab('Cancer Types in Men') +
+  theme(legend.position = 'none') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+```
+
+
+## Unveiling Unique Cancer Types
+Cancer is a complex puzzle, and each gender holds unique pieces. By identifying and visualizing the exclusive cancer types for men and women, we highlight the diversity in cancer incidence. This underscores the importance of tailored approaches in cancer research, healthcare, and public health initiatives.
+```{r}
+
+## Plot unique cancer types for men
+unique_cancer_men <- setdiff(total_cases_cancer_men$cancer, total_cases_cancer_women$cancer)
+ggplot(filter(both_sex, gender == 'men' & cancer %in% unique_cancer_men)) +
+  geom_bar(
+    aes(x = reorder(cancer, desc(new_cases_2020)), y = new_cases_2020, fill = cancer),
+    stat = 'identity'
+  ) +
+  ylab('Number of Cases in 2020') +
+  xlab('Unique Cancer Types in Men') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  theme(legend.position = 'none')  # Remove the legend to avoid confusion
+
+## Plot unique cancer types for women
+unique_cancer_women <- setdiff(total_cases_cancer_women$cancer, total_cases_cancer_men$cancer)
+ggplot(filter(both_sex, gender == 'women' & cancer %in% unique_cancer_women)) +
+  geom_bar(
+    aes(x = reorder(cancer, desc(new_cases_2020)), y = new_cases_2020, fill = cancer),
+    stat = 'identity'
+  ) + 
+  ylab('Number of Cases in 2020') +
+  xlab('Unique Cancer Types in Women') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+
+
+```
+ 
+
+##  Unveiling Dominant Trends: A Gender-Specific Exploration of the Top 5 Most Prevalent Cancer Types in 2020
+Our journey concludes with the identification and illustration of the three most prevalent cancer types for both men and women. Through careful data manipulation and visualization, we provide a gender-specific analysis, offering a comprehensive understanding of the dominant trends.The resulting visualizations provide an insightful comparison of the most prominent cancers, allowing for a gender-specific analysis.
+ 
+ 
+```{r}
+## Find the five most prevalent cancer types for each gender
+most_prevalent_cancer_men <- both_sex %>%
+  filter(gender == 'men') %>%
+  group_by(cancer) %>%
+  summarise(total_cases = sum(new_cases_2020)) %>%
+  top_n(5, total_cases) %>%
+  distinct()
+
+most_prevalent_cancer_women <- both_sex %>%
+  filter(gender == 'women') %>%
+  group_by(cancer) %>%
+  summarise(total_cases = sum(new_cases_2020)) %>%
+  top_n(5, total_cases) %>%
+  distinct()
+
+# Bar plot for men
+plot_men <- ggplot() +
+  geom_bar(
+    data = filter(both_sex, gender == 'men' & cancer %in% most_prevalent_cancer_men$cancer),
+    aes(x = reorder(cancer, desc(new_cases_2020)), y = new_cases_2020),
+    stat = 'identity', position = 'identity', fill="blue"
+  ) +
+  ylab('Number of Cases in 2020') +
+  xlab('Most Prevalent Cancer Types for Men') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+# Bar plot for women
+plot_women <- ggplot() +
+  geom_bar(
+    data = filter(both_sex, gender == 'women' & cancer %in% most_prevalent_cancer_women$cancer),
+    aes(x = reorder(cancer, desc(new_cases_2020)), y = new_cases_2020),
+    stat = 'identity', position = 'identity', fill="pink"
+  ) +
+  ylab('Number of Cases in 2020') +
+  xlab('Most Prevalent Cancer Types for Women') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+# Arrange the two plots side by side
+plot_men / plot_women
+```
+ 
+## Conclusion
+In closing, our journey through global cancer incidence data has revealed intricate patterns, unique characteristics, and dominant trends. The fusion of data science and storytelling has provided a deeper understanding of the complexities surrounding cancer. Armed with these insights, we can pave the way for more targeted research, improved healthcare strategies, and impactful public health initiatives.
+
+Thank you for joining us on this enlightening exploration of global cancer incidence in 2020!
